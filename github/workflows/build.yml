@@ -8,12 +8,20 @@ on:
 jobs:
   build-apk:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # מריץ את Buildozer בתוך מיכל הרשמי וממפה את הרפו לתוך /home/user/app
       - name: Build with Buildozer (Docker)
-        run: |
-          docker run --rm -v "$PWD":/home/user/app -w /home/user/app kivy/buildozer \
-          bash -lc "buildozer -v android debug"
+        uses: addnab/docker-run-action@v3
+        with:
+          image: ghcr.io/kivy/buildozer:latest
+          options: -v ${{ github.workspace }}:/home/user/app -w /home/user/app --user root
+          run: |
+            buildozer -v android debug
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
